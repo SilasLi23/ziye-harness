@@ -1,10 +1,51 @@
 /** Recorded npm evidence stays intact while authored files and exact edits remain checked. */
 
 import { describe, expect, it } from 'vitest'
-import { exactEditState, isRescopeExcluded } from './rescope-vendor.ts'
+import { createRescopeRewriter, exactEditState, isRescopeExcluded } from './rescope-vendor.ts'
 
 const ANCHOR = '\n## Sync procedure'
 const INSERTED = `\n15. **rescope**: one log entry.\n${ANCHOR}`
+
+describe('package names and product identities', () => {
+  const upstream = ['cor', 'dis'].join('')
+  const scoped = `@deepseek-ai/${upstream}`
+
+  it('keeps preset ids while still rewriting real imports in the same source', () => {
+    const file = 'packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx'
+    const source = `const enabled = options.some(option => option.id === '${upstream}');\nimport { Context } from '${upstream}';\nconst load = () => import('${upstream}');\nconst read = () => require('${upstream}');\nconst row = { name: '${upstream}' };`
+    const actual = createRescopeRewriter()(file, source).text
+    expect(actual).toContain(`option.id === '${upstream}'`)
+    expect(actual).toContain(`from '${scoped}'`)
+    expect(actual).toContain(`import('${scoped}')`)
+    expect(actual).toContain(`require('${scoped}')`)
+    expect(actual).toContain(`name: '${scoped}'`)
+    expect(createRescopeRewriter()(file, actual).text).toBe(actual)
+  })
+
+  it('preserves wire event ids without hiding a package subpath import', () => {
+    const file = 'snapshots/session/cordis-inspect-liveness/client-fixture.mjs'
+    const source = `ctx.on('${upstream}/inspect-query', handler);\nimport { helper } from '${upstream}/helpers';`
+    const actual = createRescopeRewriter()(file, source).text
+    expect(actual).toContain(`on('${upstream}/inspect-query'`)
+    expect(actual).toContain(`from '${scoped}/helpers'`)
+  })
+
+  it('keeps event catalogue names while detecting a real import beside them', () => {
+    const file = 'packages/extensions/tool-cordis/src/api-catalog.ts'
+    const source = `const events = [{ name: '${upstream}/inspect-query', mode: 'serial', signature: 'event(): void' }];\nimport { Context } from '${upstream}';`
+    const actual = createRescopeRewriter()(file, source).text
+    expect(actual).toContain(`name: '${upstream}/inspect-query'`)
+    expect(actual).toContain(`from '${scoped}'`)
+  })
+
+  it('distinguishes documented preset lists from package prose and YAML names', () => {
+    const source = `The \`standard\`, \`${upstream}\`, and \`ptc\` presets.\nUse the \`${upstream}\` package.\n\`\`\`yaml\n- name: ${upstream}\n\`\`\``
+    const actual = createRescopeRewriter()('docs/subsystems/schedule.md', source).text
+    expect(actual).toContain(`\`standard\`, \`${upstream}\`, and \`ptc\``)
+    expect(actual).toContain(`Use the \`${scoped}\` package.`)
+    expect(actual).toContain(`name: ${scoped}`)
+  })
+})
 
 describe('rescope file selection', () => {
   it('preserves the recorded npm resolution', () => {
