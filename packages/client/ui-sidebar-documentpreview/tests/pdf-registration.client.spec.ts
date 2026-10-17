@@ -8,15 +8,15 @@ import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
-import { createPdfStore } from '../src/client/pdf/store.ts'
-import type { PdfBodyInjected } from '../src/client/pdf/pdf.tsx'
+import { createPdfStore } from '../src/client/document/pdf/store.ts'
+import type { PdfBodyInjected } from '../src/client/document/pdf/pdf.tsx'
 
-vi.mock('../src/client/pdf/runtime.ts', () => ({ openPdf: vi.fn() }))
+vi.mock('../src/client/document/pdf/runtime.ts', () => ({ openPdf: vi.fn() }))
 const renderedPdf = vi.hoisted(() => vi.fn(() => null))
-vi.mock('../src/client/pdf/pdf.tsx', () => ({ PdfBody: renderedPdf }))
-import { apply, PDF_BODY_ID } from '../src/client/pdf/index.ts'
-import { LazyPdfBody } from '../src/client/pdf/LazyPdfBody.tsx'
-import { en, zh } from '../src/client/pdf/locales.ts'
+vi.mock('../src/client/document/pdf/pdf.tsx', () => ({ PdfBody: renderedPdf }))
+import { apply, PDF_BODY_ID } from '../src/client/document/pdf/index.ts'
+import { LazyPdfBody } from '../src/client/document/pdf/LazyPdfBody.tsx'
+import { en, zh } from '../src/client/document/pdf/locales.ts'
 
 afterEach(() => { cleanup(); renderedPdf.mockClear() })
 

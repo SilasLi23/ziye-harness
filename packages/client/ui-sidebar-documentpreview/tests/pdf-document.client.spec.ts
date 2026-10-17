@@ -2,7 +2,7 @@
 /** Page rendering cancellation is driven by controlled pdfjs promises, not scheduler delays. */
 import { describe, expect, it, vi } from 'vitest'
 import type { PDFPageProxy } from 'pdfjs-dist'
-import { renderPdfPage } from '../src/client/pdf/document.ts'
+import { renderPdfPage } from '../src/client/document/pdf/document.ts'
 
 describe('PDF canvas rendering', () => {
   it('joins canvas cancellation before cleanup when text rendering fails', async () => {

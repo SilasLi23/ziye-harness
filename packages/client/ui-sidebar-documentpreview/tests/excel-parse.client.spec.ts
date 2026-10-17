@@ -1,6 +1,6 @@
 /** Parser Worker allocation, cancellation, timeout, and message failures. */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { parseExcel } from '../src/client/excel/parse.ts'
+import { parseExcel } from '../src/client/document/excel/parse.ts'
 import { Config } from '../src/config.ts'
 
 const limits = Config({}).excel

@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { FontNotice, type FontNoticeProps } from '../src/client/office/FontNotice.tsx'
-import { en, zh } from '../src/client/office/locales.ts'
+import { FontNotice, type FontNoticeProps } from '../src/client/document/office/FontNotice.tsx'
+import { en, zh } from '../src/client/document/office/locales.ts'
 
 beforeEach(() => {
   vi.stubGlobal('ResizeObserver', class {

@@ -1,7 +1,7 @@
 /** Test-only Client parser isolation; the parent owns deadlines and termination. */
 import { parentPort, workerData } from 'node:worker_threads'
-import { convertExcel } from '../../src/client/excel/convert.ts'
-import type { ExcelLimits, ExcelPreview } from '../../src/client/excel/model.ts'
+import { convertExcel } from '../../src/client/document/excel/convert.ts'
+import type { ExcelLimits, ExcelPreview } from '../../src/client/document/excel/model.ts'
 
 if (parentPort === null) throw new Error('The Excel fuzz worker requires a parent port')
 const port = parentPort

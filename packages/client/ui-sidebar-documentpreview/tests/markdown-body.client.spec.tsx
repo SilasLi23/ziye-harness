@@ -3,8 +3,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { MarkdownBody, type MarkdownBodyProps } from '../src/client/markdown/MarkdownBody.tsx'
-import { en, zh } from '../src/client/markdown/locales.ts'
+import { MarkdownBody, type MarkdownBodyProps } from '../src/client/document/markdown/MarkdownBody.tsx'
+import { en, zh } from '../src/client/document/markdown/locales.ts'
 import type { DocumentContent } from '../src/client/document/contract.ts'
 
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
@@ -151,7 +151,7 @@ describe('MarkdownBody', () => {
     ['a sequence document', '- first\n- second'],
   ])('shows the verbatim frontmatter source for %s', async (_, source) => {
     const view = render(<MarkdownBody {...props(content([`---\r\n${source}\r\n...\r\nBody.`], true))} />)
-    await act(async () => { await import('../src/client/markdown/frontmatter-fields.tsx') })
+    await act(async () => { await import('../src/client/document/markdown/frontmatter-fields.tsx') })
     const block = view.container.querySelector('[data-document-frontmatter]')
     expect(block?.querySelector('dl')).toBeNull()
     expect(block?.querySelector('pre')?.textContent).toBe(source)

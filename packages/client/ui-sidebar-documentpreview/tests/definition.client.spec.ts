@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import { parseFileAddress, sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
 import { SidebarRightTabRegistry } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/tab-registry.ts'
-import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND, basenameOf, textDefinition } from '../src/client/definition.ts'
+import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND, basenameOf, textDefinition } from '../src/client/document/definition.ts'
 
 describe('basenameOf', () => {
   it('decodes the last segment, so an escaped name reads as itself', () => {

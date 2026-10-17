@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs'
 import { utils, write } from 'xlsx'
 import { expect, it } from 'vitest'
 import { Config } from '../src/config.ts'
-import { convertExcel } from '../src/client/excel/convert.ts'
-import { excelFormat } from '../src/client/excel/format.ts'
-import { mapXlsWorkbook } from '../src/client/excel/xls.ts'
+import { convertExcel } from '../src/client/document/excel/convert.ts'
+import { excelFormat } from '../src/client/document/excel/format.ts'
+import { mapXlsWorkbook } from '../src/client/document/excel/xls.ts'
 import { legacyWorkbook, xlsFixture } from './xls-fixture.ts'
 
 const limits = Config({}).excel

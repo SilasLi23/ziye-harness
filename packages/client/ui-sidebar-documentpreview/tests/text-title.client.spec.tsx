@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
 import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import { TextTitle } from '../src/client/TextTitle.tsx'
+import { TextTitle } from '../src/client/document/TextTitle.tsx'
 
 afterEach(cleanup)
 

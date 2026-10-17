@@ -28,12 +28,12 @@ import type {
 } from '../src/client/contract/slots.ts'
 import {
   ArchiveSessionMenuItem, ArchiveSessionRowButton, SessionArchiveConfirmDialog,
-} from '../src/client/session-actions/ArchiveSession.tsx'
-import { ForkSessionMenuItem } from '../src/client/session-actions/ForkSession.tsx'
-import { PinSessionMenuItem, PinSessionRowButton } from '../src/client/session-actions/PinSession.tsx'
-import { RenameSessionMenuItem, SessionRenameDialog } from '../src/client/session-actions/RenameSession.tsx'
-import { RowActionToast } from '../src/client/session-actions/RowActionToast.tsx'
-import { SessionIdMenuItem } from '../src/client/session-actions/SessionId.tsx'
+} from '../src/client/rows/actions/ArchiveSession.tsx'
+import { ForkSessionMenuItem } from '../src/client/rows/actions/ForkSession.tsx'
+import { PinSessionMenuItem, PinSessionRowButton } from '../src/client/rows/actions/PinSession.tsx'
+import { RenameSessionMenuItem, SessionRenameDialog } from '../src/client/rows/actions/RenameSession.tsx'
+import { RowActionToast } from '../src/client/rows/actions/RowActionToast.tsx'
+import { SessionIdMenuItem } from '../src/client/rows/actions/SessionId.tsx'
 import { createWorkspaceViewStore } from '../src/client/stores.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { ShortcutRegistry } from '../../shortcuts/src/client/registry.ts'

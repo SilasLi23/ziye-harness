@@ -16,6 +16,7 @@
 
 import { globSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, posix, resolve, sep } from 'node:path'
+import ts from 'typescript'
 
 const root = resolve(import.meta.dirname, '..')
 const CLIENT_DIR = join(root, 'packages/client')
@@ -51,19 +52,22 @@ export function resolveClientImport(file: string, specifier: string): string {
   return posix.normalize(posix.join(posix.dirname(file), specifier))
 }
 
-function checkPackage(pkgName: string, clientDir: string): Violation[] {
+function checkPackage(pkgName: string, clientDir: string, files: readonly string[]): Violation[] {
   const violations: Violation[] = []
-  const files = listSources(clientDir)
   for (const rel of files) {
     const fromDomain = domainOf(rel)
     const isAssembly = fromDomain === '' && ASSEMBLY_FILES.has(rel)
     if (isAssembly) continue
     const source = readFileSync(join(clientDir, rel), 'utf8')
-    for (const match of source.matchAll(/from\s+['"](\.[^'"]+)['"]/g)) {
-      const spec = match[1]
-      if (spec === undefined) continue
+    const imports = ts.preProcessFile(source, true, true).importedFiles.toSorted((left, right) => left.pos - right.pos)
+    for (const { fileName: spec } of imports) {
+      if (!spec.startsWith('.')) continue
       const target = resolveClientImport(rel, spec)
       if (target === '..' || target.startsWith('../')) continue // package-level rules govern
+      // Shared image/font files export resource URLs, not a business domain's code or CSS API.
+      const sharedResource = target.startsWith('assets/')
+        && /\.(?:svg|png|jpe?g|webp|avif|gif|woff2?|ttf|otf)$/i.test(target.replace(/[?#].*$/, ''))
+      if (sharedResource) continue
       const toDomain = domainOf(target)
       if (toDomain === '' || CONTRACT_DIRS.has(toDomain)) continue // top-level shared file or contract layer
       if (fromDomain === toDomain) continue // inside one domain
@@ -79,19 +83,33 @@ function checkPackage(pkgName: string, clientDir: string): Violation[] {
   return violations
 }
 
-function main(): void {
+/**
+ * Inspect every Client source package under one workspace's Client group.
+ * @param clientRoot - Absolute packages/client directory or an isolated fixture group.
+ * @returns Domain-layering findings with repository-relative consumer paths.
+ * @throws When the source corpus is empty instead of accepting a missing checkout.
+ */
+export function scanClientDomains(clientRoot: string): Violation[] {
   const violations: Violation[] = []
-  for (const pkg of readdirSync(CLIENT_DIR)) {
-    const clientDir = join(CLIENT_DIR, pkg, 'src/client')
+  let sourceFiles = 0
+  for (const pkg of readdirSync(clientRoot)) {
+    const clientDir = join(clientRoot, pkg, 'src/client')
     try {
       if (!statSync(clientDir).isDirectory()) continue
     } catch {
       // No client half in this package — nothing to layer-check.
       continue
     }
-    violations.push(...checkPackage(pkg, clientDir))
+    const files = listSources(clientDir)
+    sourceFiles += files.length
+    violations.push(...checkPackage(pkg, clientDir, files))
   }
+  if (sourceFiles === 0) throw new Error(`verify-client-domain-graph: no Client source files found under ${clientRoot}`)
+  return violations
+}
 
+function main(): void {
+  const violations = scanClientDomains(CLIENT_DIR)
   if (violations.length > 0) {
     console.error(`verify-client-domain-graph: ${violations.length} violation(s):`)
     for (const v of violations) console.error(`  ${v.file} -> ${v.imported}\n    ${v.reason}`)

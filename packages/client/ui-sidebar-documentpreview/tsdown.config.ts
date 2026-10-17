@@ -75,7 +75,7 @@ const excelWorker: NonNullable<UserConfig['plugins']> = [{
     if (id !== '\0dsh-excel-worker-source') return null
     const parent = this
     const worker = await Rolldown.rolldown({
-      input: join(import.meta.dirname, 'src/client/excel/worker.ts'), platform: 'browser',
+      input: join(import.meta.dirname, 'src/client/document/excel/worker.ts'), platform: 'browser',
       resolve: { mainFields: ['browser', 'module', 'main'], aliasFields: [['browser']] },
       transform: { define: { 'process.env.NODE_ENV': JSON.stringify('production') } },
       plugins: [{

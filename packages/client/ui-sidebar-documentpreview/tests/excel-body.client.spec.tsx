@@ -4,14 +4,14 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, expect, it, vi } from 'vitest'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
 import { Config } from '../src/config.ts'
-import { en, zh } from '../src/client/excel/locales.ts'
-import type { ExcelBodyProps, LoadedExcelBodyProps } from '../src/client/excel/LazyExcelBody.tsx'
+import { en, zh } from '../src/client/document/excel/locales.ts'
+import type { ExcelBodyProps, LoadedExcelBodyProps } from '../src/client/document/excel/LazyExcelBody.tsx'
 
 const mocked = vi.hoisted(() => ({ parse: vi.fn(), workbook: vi.fn((_props: unknown) => null) }))
-vi.mock('../src/client/excel/parse.ts', () => ({ parseExcel: mocked.parse }))
+vi.mock('../src/client/document/excel/parse.ts', () => ({ parseExcel: mocked.parse }))
 vi.mock('@fortune-sheet/react', () => ({ Workbook: mocked.workbook }))
-import { ExcelBody } from '../src/client/excel/excel.tsx'
-import { LazyExcelBody } from '../src/client/excel/LazyExcelBody.tsx'
+import { ExcelBody } from '../src/client/document/excel/excel.tsx'
+import { LazyExcelBody } from '../src/client/document/excel/LazyExcelBody.tsx'
 import { LoadingIndicator } from '../src/client/LoadingIndicator.tsx'
 
 const props = { content: { kind: 'bytes', data: new Uint8Array([1]) }, limits: Config({}).excel, t: makeTranslate(en), resourceAddress: 'dsh-resource://file/session/s1/book.xlsx' } as ExcelBodyProps
