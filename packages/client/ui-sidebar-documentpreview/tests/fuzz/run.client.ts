@@ -54,7 +54,11 @@ let parserRef = head
 if (values['baseline-ref'] !== undefined) {
   parserRef = execFileSync('git', ['rev-parse', '--verify', `${values['baseline-ref']}^{commit}`], { encoding: 'utf8' }).trim()
   const sourceRoot = new URL('../../src/client/document/excel/', import.meta.url).href
-  const baseline = execFileSync('git', ['show', `${parserRef}:packages/client/ui-sidebar-documentpreview/src/client/excel/xlsx.ts`], { encoding: 'utf8' }).replaceAll("from './", `from '${sourceRoot}`)
+  const candidates = execFileSync('git', ['ls-tree', '-r', '--name-only', parserRef, '--', 'packages/client/ui-sidebar-documentpreview'],
+    { encoding: 'utf8' }).trim().split('\n').filter(path => path.endsWith('/excel/xlsx.ts'))
+  if (candidates.length !== 1) throw new Error('baseline-ref must contain exactly one XLSX parser')
+  const baseline = execFileSync('git', ['show', `${parserRef}:${candidates[0]}`], { encoding: 'utf8' })
+    .replaceAll("from './", `from '${sourceRoot}`)
   await mkdir(artifactRoot, { recursive: true })
   baselineDirectory = await mkdtemp(join(artifactRoot, 'excel-baseline-'))
   const path = join(baselineDirectory, 'xlsx.ts')
