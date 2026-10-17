@@ -72,6 +72,24 @@ describe('unique object-name prefix search', () => {
 })
 
 describe('maintained repository reference policy', () => {
+  it('does not mistake an artifact byte count for a numeric commit prefix', () => {
+    const numericCommit = ['634', '4383'].join('')
+    const commits = new Set([numericCommit])
+    expect(findRepositoryReferences('python/sdk/uv.lock', `{ size = ${numericCommit}, hash = "sha256:digest" }`, commits)).toEqual([])
+    expect(findRepositoryReferences('artifacts.json', `{ "bytes": ${numericCommit} }`, commits)).toEqual([])
+    expect(findRepositoryReferences('guide.md', `commit ${numericCommit}`, commits))
+      .toEqual([{ file: 'guide.md', line: 1, kind: 'commit-hash' }])
+    expect(findRepositoryReferences('artifacts.json', `{ "commit": "${numericCommit}" }`, commits))
+      .toEqual([{ file: 'artifacts.json', line: 1, kind: 'commit-hash' }])
+  })
+
+  it('still rejects a commit URL on a line that also contains an artifact size', () => {
+    const numericCommit = ['634', '4383'].join('')
+    const source = `{ size = ${numericCommit}, url = "https://github.com/example/project/commit/${numericCommit}" }`
+    expect(findRepositoryReferences('artifacts.lock', source, new Set([numericCommit])))
+      .toEqual([{ file: 'artifacts.lock', line: 1, kind: 'commit-hash' }])
+  })
+
   it('permits only the independent kit repository and its source URLs', () => {
     for (const suffix of ['', '.git', '/tree/main/packages/entry']) {
       expect(findRepositoryReferences('package.json', `${organizationUrl}/libreoffice-kit${suffix}`, new Set())).toEqual([])

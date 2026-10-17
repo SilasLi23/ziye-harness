@@ -31,6 +31,24 @@ function isMaintained(file: string): boolean {
   return !excludedPrefixes.some(prefix => file.startsWith(prefix))
 }
 
+/** Artifact byte counts remain numbers even when their digits identify a local Git object. */
+function isArtifactSize(file: string, line: string, start: number, candidate: string): boolean {
+  if (!/\.(?:json|toml|lock)$/.test(file) || !/^\d+$/.test(candidate)) return false
+  const prefix = line.slice(0, start)
+  if (!/(?:^|[{,])\s*(?:"(?:size|bytes)"|size|bytes)\s*[:=]\s*$/.test(prefix)
+    || !/^(?:\s*[,}\]]|\s*$)/.test(line.slice(start + candidate.length))) return false
+  let quote = ''
+  for (let index = 0; index < prefix.length; index += 1) {
+    const character = prefix[index]
+    if (quote !== '') {
+      if (character === '\\' && quote === '"') index += 1
+      else if (character === quote) quote = ''
+    } else if (character === '#') return false
+    else if (character === '"' || character === "'") quote = character
+  }
+  return quote === ''
+}
+
 /**
  * Inspect a maintained source file against known commit identifiers.
  * @param file - Repository-relative path used in diagnostics and exclusions.
@@ -49,7 +67,8 @@ export function findRepositoryReferences(
     if (organizationUrl.test(canonicalReferenceText(line).replace(kitRepositoryUrl, ''))) {
       references.push({ file, line: index + 1, kind: 'organization-url' })
     }
-    if ([...line.matchAll(commitCandidate)].some(match => commits.has(match[0].toLowerCase()))) {
+    if ([...line.matchAll(commitCandidate)].some(match =>
+      commits.has(match[0].toLowerCase()) && !isArtifactSize(file, line, match.index, match[0]))) {
       references.push({ file, line: index + 1, kind: 'commit-hash' })
     }
   }
