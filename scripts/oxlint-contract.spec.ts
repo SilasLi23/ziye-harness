@@ -2,18 +2,48 @@
  * Process-spawning cases set Vitest's case timeout to 90 seconds, including
  * plain local runs without a CI override. Configuration-only cases keep the default.
  */
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { join, relative } from 'node:path'
+import { copyFile, lstat, mkdir, mkdtemp, readFile, readlink, realpath, rm, symlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { flattenDiagnosticMessageText, parseConfigFileTextToJson } from 'typescript'
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-const repositoryRoot = fileURLToPath(new URL('..', import.meta.url))
+const maintainedRoot = fileURLToPath(new URL('..', import.meta.url))
+let repositoryRoot = ''
 const oxlintCli = fileURLToPath(new URL('../node_modules/oxlint/bin/oxlint', import.meta.url))
 const tsxCli = fileURLToPath(new URL('../node_modules/tsx/dist/cli.mjs', import.meta.url))
+
+// Type-aware probes need the real workspace layout, but no test may add files to a compiler's live source corpus.
+beforeAll(async () => {
+  repositoryRoot = await realpath(await mkdtemp(join(tmpdir(), 'dsh-oxlint-workspace-')))
+  const files = execFileSync('git', ['ls-files', '-z'], { cwd: maintainedRoot, encoding: 'utf8' }).split('\0').filter(Boolean)
+  for (let start = 0; start < files.length; start += 64) {
+    await Promise.all(files.slice(start, start + 64).map(async (file) => {
+      const source = join(maintainedRoot, file)
+      const target = join(repositoryRoot, file)
+      await mkdir(dirname(target), { recursive: true })
+      if ((await lstat(source)).isSymbolicLink()) await symlink(await readlink(source), target)
+      else await copyFile(source, target)
+    }))
+  }
+  const directories = new Set([''])
+  for (const file of files) if (file.endsWith('/package.json')) directories.add(dirname(file))
+  for (const directory of directories) {
+    for (const name of ['node_modules', 'lib', '.dsh-build']) {
+      const source = join(maintainedRoot, directory, name)
+      const target = join(repositoryRoot, directory, name)
+      if (existsSync(source) && !existsSync(target)) await symlink(source, target, process.platform === 'win32' ? 'junction' : 'dir')
+    }
+  }
+}, 120_000)
+
+afterAll(async () => {
+  if (repositoryRoot !== '') await rm(repositoryRoot, { recursive: true, force: true, maxRetries: 3 })
+})
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -75,6 +105,7 @@ probePromise()
       for (const [label, parent, tsconfig, extension = '.ts'] of probes) {
         const path = join(repositoryRoot, parent, `oxlint-contract-${suffix}${extension}`)
         await writeFile(path, source)
+        expect(existsSync(join(maintainedRoot, parent, `oxlint-contract-${suffix}${extension}`))).toBe(false)
         paths.push([label, relative(repositoryRoot, path), tsconfig])
       }
       const clientScript = 'scripts/client-bundle-purity.spec.ts'
