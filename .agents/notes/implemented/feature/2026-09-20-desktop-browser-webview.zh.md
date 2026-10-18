@@ -56,4 +56,4 @@ Sidebar 持有的稳定祖先保留页面，无需 Browser 自行处理几何或
 
 定向测试覆盖原生导航错误恢复、preload 监听范围和已迁移的 iframe 行为。这些测试不能确认真实 Electron 的挂载时序、遮挡、焦点、平台样式或存储隔离；这些仍是运行时验证缺口。本次变更不附带 GUI 录像。此实现不构成完整浏览器安全策略已经可以发布的证据。
 
-包内的 Electron 提供方、呈现适配器、页面工厂与 Workspace 存储解析集中在 `src/client/electron/`. 在原生 Electron 测试环境覆盖 guest 行为之前, 该目录暂时不参与逐文件覆盖率门禁; 其单元测试仍然运行. 共享 Browser 控制器、恢复 UI、iframe 代码和 Sidebar 保活仍遵循现有覆盖率要求.
+包内的 Electron 提供方、呈现适配器、页面工厂与 Workspace 存储解析集中在 `src/client/browser/electron/`. 在原生 Electron 测试环境覆盖 guest 行为之前, 该目录暂时不参与逐文件覆盖率门禁; 其单元测试仍然运行. 共享 Browser 控制器、恢复 UI、iframe 代码和 Sidebar 保活仍遵循现有覆盖率要求.

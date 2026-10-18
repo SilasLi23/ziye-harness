@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { markdownImageUrl } from '../src/client/markdown/path-images.ts'
+import { markdownImageUrl } from '../src/client/document/markdown/path-images.ts'
 
 const BASE = 'https://example.test/tools/dsh/'
 

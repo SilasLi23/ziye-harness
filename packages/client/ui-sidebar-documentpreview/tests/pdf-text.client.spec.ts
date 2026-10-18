@@ -13,7 +13,7 @@ vi.mock('pdfjs-dist/web/pdf_viewer.mjs', () => ({
     cancel = api.cancel
   },
 }))
-import { pdfTextRenderer } from '../src/client/pdf/text.ts'
+import { pdfTextRenderer } from '../src/client/document/pdf/text.ts'
 
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
 

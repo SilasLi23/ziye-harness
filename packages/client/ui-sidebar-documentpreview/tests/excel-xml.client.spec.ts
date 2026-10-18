@@ -4,8 +4,8 @@ import ExcelJS from 'exceljs'
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
 import { describe, expect, it } from 'vitest'
 import { Config } from '../src/config.ts'
-import { convertExcel } from '../src/client/excel/convert.ts'
-import { XlsxPreviewArchive } from '../src/client/excel/xlsx-archive.ts'
+import { convertExcel } from '../src/client/document/excel/convert.ts'
+import { XlsxPreviewArchive } from '../src/client/document/excel/xlsx-archive.ts'
 import { excelXmlCases, excelXmlFixture } from './excel-xml-fixture.ts'
 
 const require = createRequire(import.meta.url)

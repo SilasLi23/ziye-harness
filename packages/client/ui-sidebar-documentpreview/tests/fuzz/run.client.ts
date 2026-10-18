@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util'
 import { Worker } from 'node:worker_threads'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
-import type { ExcelPreview } from '../../src/client/excel/model.ts'
+import type { ExcelPreview } from '../../src/client/document/excel/model.ts'
 
 interface OracleCell { sheet: string; r: number; c: number; value: string | number | boolean | null; formula?: string }
 interface Case {
@@ -53,7 +53,7 @@ let source: string | undefined
 let parserRef = head
 if (values['baseline-ref'] !== undefined) {
   parserRef = execFileSync('git', ['rev-parse', '--verify', `${values['baseline-ref']}^{commit}`], { encoding: 'utf8' }).trim()
-  const sourceRoot = new URL('../../src/client/excel/', import.meta.url).href
+  const sourceRoot = new URL('../../src/client/document/excel/', import.meta.url).href
   const baseline = execFileSync('git', ['show', `${parserRef}:packages/client/ui-sidebar-documentpreview/src/client/excel/xlsx.ts`], { encoding: 'utf8' }).replaceAll("from './", `from '${sourceRoot}`)
   await mkdir(artifactRoot, { recursive: true })
   baselineDirectory = await mkdtemp(join(artifactRoot, 'excel-baseline-'))

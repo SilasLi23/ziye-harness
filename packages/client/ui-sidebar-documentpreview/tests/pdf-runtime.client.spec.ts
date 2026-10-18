@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
 /** Browser Worker ownership, handshake, and PDF.js teardown under controlled completions. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { PdfDocument, PdfSession } from '../src/client/pdf/document.ts'
+import type { PdfDocument, PdfSession } from '../src/client/document/pdf/document.ts'
 
 const api = vi.hoisted(() => ({ getDocument: vi.fn(), createWorker: vi.fn(), destroyBridge: vi.fn() }))
 vi.mock('pdfjs-dist', () => ({ getDocument: api.getDocument, PDFWorker: { create: api.createWorker } }))
-vi.mock('../src/client/pdf/assets.ts', () => ({
+vi.mock('../src/client/document/pdf/assets.ts', () => ({
   workerSource: 'export const WorkerMessageHandler = {}',
   createPdfBinaryDataFactory: () => class { fetch() { return Promise.resolve(new Uint8Array()) } },
 }))
-import { openPdf } from '../src/client/pdf/runtime.ts'
-import { PdfWorkerFailure } from '../src/client/pdf/errors.ts'
+import { openPdf } from '../src/client/document/pdf/runtime.ts'
+import { PdfWorkerFailure } from '../src/client/document/pdf/errors.ts'
 
 const NativeURL = URL
 const workers: ControlledWorker[] = []

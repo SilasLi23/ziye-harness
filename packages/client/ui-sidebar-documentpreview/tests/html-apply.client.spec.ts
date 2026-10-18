@@ -5,10 +5,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
-import { apply, HTML_BODY_ID, htmlBodyDefinition } from '../src/client/html/index.ts'
-import { HtmlBody } from '../src/client/html/HtmlBody.tsx'
-import { en, zh } from '../src/client/html/locales.ts'
-import type { HtmlBodyProps } from '../src/client/html/HtmlBody.tsx'
+import { apply, HTML_BODY_ID, htmlBodyDefinition } from '../src/client/document/html/index.ts'
+import { HtmlBody } from '../src/client/document/html/HtmlBody.tsx'
+import { en, zh } from '../src/client/document/html/locales.ts'
+import type { HtmlBodyProps } from '../src/client/document/html/HtmlBody.tsx'
 
 type Registration = {
   name: string

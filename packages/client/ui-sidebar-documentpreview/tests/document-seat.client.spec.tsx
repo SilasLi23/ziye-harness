@@ -14,7 +14,7 @@ import { apply, inject } from '../src/client/index.ts'
 import type { DocumentPreviewProps } from '../src/client/document/contract.ts'
 import type { DocumentLoadMode } from '../src/client/document/registry.ts'
 import type { WorkspaceFilesReadRemote } from '../src/client/rpc.ts'
-import { PLAIN_BODY_ID } from '../src/client/text/index.ts'
+import { PLAIN_BODY_ID } from '../src/client/document/text/index.ts'
 
 const SESSION = 'documents' as SessionId
 const SHORTCUT_CATALOG: readonly never[] = []

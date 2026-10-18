@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /** Static dependency discovery has an injected file reader and never exposes it to the iframe. */
 import { describe, expect, it, vi } from 'vitest'
-import { packHtml } from '../src/client/html/pack.ts'
-import type { ReadHtmlRelative } from '../src/client/html/pack.ts'
+import { packHtml } from '../src/client/document/html/pack.ts'
+import type { ReadHtmlRelative } from '../src/client/document/html/pack.ts'
 import type { DocumentFileBytes } from '../src/client/rpc.ts'
 
 const source = '<link rel="stylesheet" href="./main.css"><script src="./main.js"></script>'

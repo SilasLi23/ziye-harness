@@ -4,8 +4,8 @@ import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
 import { expect, it, vi } from 'vitest'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { SessionFile } from '../src/client/rpc.ts'
-import type { ReadOfficeDocument } from '../src/client/office/cache.ts'
-import { OfficePreviewCache } from '../src/client/office/cache.ts'
+import type { ReadOfficeDocument } from '../src/client/document/office/cache.ts'
+import { OfficePreviewCache } from '../src/client/document/office/cache.ts'
 
 const file = { sessionId: 's1' as SessionId, path: 'report.docx' }
 const result = (version = 'v1', text = 'pdf!', generation = 'renderer'): Awaited<ReturnType<ReadOfficeDocument>> => ({
@@ -13,7 +13,7 @@ const result = (version = 'v1', text = 'pdf!', generation = 'renderer'): Awaited
 })
 function harness(entries = 2, bytes = 32, pending = 8, readers = 32) {
   const stat = vi.fn().mockResolvedValue({ ok: true, value: { absolutePath: '/report.docx', version: 'v1' } })
-  const convert = vi.fn<import('../src/client/office/cache.ts').ReadOfficeBytes>().mockResolvedValue(result())
+  const convert = vi.fn<import('../src/client/document/office/cache.ts').ReadOfficeBytes>().mockResolvedValue(result())
   const generation = vi.fn().mockResolvedValue({ ok: true, value: ('renderer' as OfficeToPdfGeneration) })
   const cache = new OfficePreviewCache(stat, convert, entries, bytes, pending, readers, generation, () => new Error('busy'))
   return { stat, convert, cache, generation, read: (signal = new AbortController().signal) => cache.read(file, signal) }

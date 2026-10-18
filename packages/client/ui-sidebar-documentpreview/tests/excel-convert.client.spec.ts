@@ -2,7 +2,7 @@
 import ExcelJS from 'exceljs'
 import { strToU8, unzipSync, zipSync } from 'fflate'
 import { describe, expect, it } from 'vitest'
-import { convertExcel } from '../src/client/excel/convert.ts'
+import { convertExcel } from '../src/client/document/excel/convert.ts'
 import { Config } from '../src/config.ts'
 import { excelFixture, meetingMinutesFixture } from './excel-fixture.ts'
 

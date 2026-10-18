@@ -2,7 +2,7 @@
 import { Worker as Thread, type Transferable } from 'node:worker_threads'
 import { describe, expect, it } from 'vitest'
 import { getDocument, PDFWorker } from 'pdfjs-dist/legacy/build/pdf.mjs'
-import { renderPdfPage } from '../src/client/pdf/document.ts'
+import { renderPdfPage } from '../src/client/document/pdf/document.ts'
 import { pdfFixture } from './pdf-fixture.ts'
 
 describe('PDF.js real-library smoke', () => {

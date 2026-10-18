@@ -5,22 +5,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
 import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { PdfDocument } from '../src/client/pdf/document.ts'
-import type { renderPdfPage } from '../src/client/pdf/document.ts'
-import type { openPdf } from '../src/client/pdf/runtime.ts'
+import type { PdfDocument } from '../src/client/document/pdf/document.ts'
+import type { renderPdfPage } from '../src/client/document/pdf/document.ts'
+import type { openPdf } from '../src/client/document/pdf/runtime.ts'
 import type { PageViewport, PDFPageProxy } from 'pdfjs-dist'
 
 const engine = vi.hoisted(() => ({ open: vi.fn<typeof openPdf>(), render: vi.fn<typeof renderPdfPage>() }))
 const overlay = vi.hoisted(() => ({ create: vi.fn(), render: vi.fn(), cancel: vi.fn() }))
-vi.mock('../src/client/pdf/text.ts', () => ({ pdfTextRenderer: (host: HTMLDivElement) => { overlay.create(host); return overlay.render } }))
-vi.mock('../src/client/pdf/runtime.ts', () => ({ openPdf: engine.open }))
-vi.mock('../src/client/pdf/document.ts', () => ({ renderPdfPage: engine.render }))
-import { PdfBody, type PdfBodyProps } from '../src/client/pdf/pdf.tsx'
-import { createPdfStore, type PdfState } from '../src/client/pdf/store.ts'
-import { en } from '../src/client/pdf/locales.ts'
+vi.mock('../src/client/document/pdf/text.ts', () => ({ pdfTextRenderer: (host: HTMLDivElement) => { overlay.create(host); return overlay.render } }))
+vi.mock('../src/client/document/pdf/runtime.ts', () => ({ openPdf: engine.open }))
+vi.mock('../src/client/document/pdf/document.ts', () => ({ renderPdfPage: engine.render }))
+import { PdfBody, type PdfBodyProps } from '../src/client/document/pdf/pdf.tsx'
+import { createPdfStore, type PdfState } from '../src/client/document/pdf/store.ts'
+import { en } from '../src/client/document/pdf/locales.ts'
 import { LoadingIndicator } from '../src/client/LoadingIndicator.tsx'
-import { PdfWorkerFailure } from '../src/client/pdf/errors.ts'
-import { ZoomViewport, zoomSurfaceClass } from '../src/client/zoom/ZoomViewport.tsx'
+import { PdfWorkerFailure } from '../src/client/document/pdf/errors.ts'
+import { ZoomViewport, zoomSurfaceClass } from '../src/client/document/zoom/ZoomViewport.tsx'
 
 const loads: Array<{
   deferred: ReturnType<typeof Promise.withResolvers<PdfDocument>>

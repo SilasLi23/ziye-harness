@@ -2,8 +2,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
 import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
-import { createReadHtmlRelative } from '../src/client/html/read-relative.ts'
-import type { ReadHtmlRelated } from '../src/client/html/read-relative.ts'
+import { createReadHtmlRelative } from '../src/client/document/html/read-relative.ts'
+import type { ReadHtmlRelated } from '../src/client/document/html/read-relative.ts'
 
 const ADDRESS = 'dsh-resource://file/session/html/sub/index.html'
 

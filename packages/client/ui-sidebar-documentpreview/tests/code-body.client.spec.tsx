@@ -7,11 +7,11 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import { absoluteFileAddress, sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
-import { CodeBody } from '../src/client/code/CodeBody.tsx'
-import type { CodeBodyProps } from '../src/client/code/CodeBody.tsx'
+import { CodeBody } from '../src/client/document/code/CodeBody.tsx'
+import type { CodeBodyProps } from '../src/client/document/code/CodeBody.tsx'
 import type { DocumentContent } from '../src/client/document/contract.ts'
-import { en, zh } from '../src/client/code/locales.ts'
-import css from '../src/client/code/CodeBody.module.css'
+import { en, zh } from '../src/client/document/code/locales.ts'
+import css from '../src/client/document/code/CodeBody.module.css'
 import primitiveCss from '../../ui-primitives/src/markdown/CodeBlock.module.css'
 
 const SESSION = 'code-preview' as SessionId
@@ -60,7 +60,7 @@ function tokens(root: HTMLElement) {
 /** Apply both source stylesheets using Vite's module names; jsdom has no CSS loader. */
 function installStyles(): void {
   const directory = dirname(fileURLToPath(import.meta.url))
-  const own = readFileSync(resolve(directory, '../src/client/code/CodeBody.module.css'), 'utf8')
+  const own = readFileSync(resolve(directory, '../src/client/document/code/CodeBody.module.css'), 'utf8')
     .replaceAll('.renderer', `.${css.renderer}`).replaceAll('.code', `.${css.code}`)
   const shared = readFileSync(resolve(directory, '../../ui-primitives/src/markdown/CodeBlock.module.css'), 'utf8')
     .replaceAll('.block', `.${primitiveCss.block}`)

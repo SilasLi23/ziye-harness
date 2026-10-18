@@ -4,9 +4,9 @@ import { expect, it, vi } from 'vitest'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
 import { binaryDocumentPath, DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { Config } from '../src/config.ts'
-import { apply } from '../src/client/excel/index.ts'
-import { LazyExcelBody } from '../src/client/excel/LazyExcelBody.tsx'
-import { en, zh } from '../src/client/excel/locales.ts'
+import { apply } from '../src/client/document/excel/index.ts'
+import { LazyExcelBody } from '../src/client/document/excel/LazyExcelBody.tsx'
+import { en, zh } from '../src/client/document/excel/locales.ts'
 
 it('registers complete binary reads and removes the slot and locale on disposal', async () => {
   const ctx = new Context()

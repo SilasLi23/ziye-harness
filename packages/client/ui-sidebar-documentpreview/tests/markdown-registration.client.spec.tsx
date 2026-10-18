@@ -9,7 +9,7 @@ import type { UseSidebarRightTabInfo } from '@deepseek-ai/dsh-client-ui-sidebar-
 import { SessionId } from '@deepseek-ai/dsh-session/types'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { documentTabInfoFactory } from '../src/client/document/contract.ts'
-import { apply, MARKDOWN_BODY_ID, markdownDefinition } from '../src/client/markdown/index.ts'
+import { apply, MARKDOWN_BODY_ID, markdownDefinition } from '../src/client/document/markdown/index.ts'
 
 const runtimes: SlotTestRuntime[] = []
 

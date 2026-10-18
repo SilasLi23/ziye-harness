@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
-import { ImageBody } from '../src/client/image/ImageBody.tsx'
-import { apply, BINARY_IMAGE_EXTENSIONS, IMAGE_BODY_ID, IMAGE_EXTENSIONS, imageBodyDefinition } from '../src/client/image/index.ts'
-import { en, zh } from '../src/client/image/locales.ts'
-import type { ZoomInjected, ZoomStore } from '../src/client/zoom/store.ts'
+import { ImageBody } from '../src/client/document/image/ImageBody.tsx'
+import { apply, BINARY_IMAGE_EXTENSIONS, IMAGE_BODY_ID, IMAGE_EXTENSIONS, imageBodyDefinition } from '../src/client/document/image/index.ts'
+import { en, zh } from '../src/client/document/image/locales.ts'
+import type { ZoomInjected, ZoomStore } from '../src/client/document/zoom/store.ts'
 
 let dispose: (() => Promise<void>) | undefined
 afterEach(async () => { await dispose?.(); dispose = undefined })

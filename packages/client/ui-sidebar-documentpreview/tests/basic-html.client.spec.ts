@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** Inert parsing precedes the restrictive policy so source markup cannot navigate or load frames. */
 import { expect, it } from 'vitest'
-import { createBasicHtmlDocument } from '../src/client/html/basic-document.ts'
+import { createBasicHtmlDocument } from '../src/client/document/html/basic-document.ts'
 
 it('removes MathML navigation and links exposed by parser mutation', () => {
   const cases = [

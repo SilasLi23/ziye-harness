@@ -7,17 +7,17 @@ import type { ClientRemote } from '@deepseek-ai/dsh-api-remotes/client'
 import type {} from '@deepseek-ai/dsh-office-to-pdf/remote'
 import { makeTranslate, RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
-import { apply } from '../src/client/office/index.ts'
-import { officeFace } from '../src/client/office/face.ts'
+import { apply } from '../src/client/document/office/index.ts'
+import { officeFace } from '../src/client/document/office/face.ts'
 import { Config } from '../src/config.ts'
-import { OfficeBody, type OfficeBodyInjected } from '../src/client/office/OfficeBody.tsx'
-import type { OfficeStore } from '../src/client/office/store.ts'
+import { OfficeBody, type OfficeBodyInjected } from '../src/client/document/office/OfficeBody.tsx'
+import type { OfficeStore } from '../src/client/document/office/store.ts'
 import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import { en, zh } from '../src/client/office/locales.ts'
+import { en, zh } from '../src/client/document/office/locales.ts'
 import { en as documentEn } from '../src/client/locales.ts'
 
-vi.mock('../src/client/office/face.ts', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../src/client/office/face.ts')>()
+vi.mock('../src/client/document/office/face.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/client/document/office/face.ts')>()
   return { ...actual, officeFace: vi.fn(actual.officeFace) }
 })
 
