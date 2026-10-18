@@ -31,6 +31,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import ts from 'typescript'
 
 const root = resolve(import.meta.dirname, '..')
 
@@ -67,8 +68,8 @@ interface ExactEdit {
 
 /**
  * A file where an upstream name also appears as a vendor DIRECTORY name or an
- * upstream runtime identifier: the generic pass is disabled for the listed
- * names and {@link EXACT_EDITS} renames the real package-name occurrences.
+ * upstream runtime identifier: non-package tokens keep their spelling. Syntax-
+ * identified imports and plugin names remain checked in the same file.
  */
 interface GenericSkip {
   readonly file: string
@@ -94,9 +95,16 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts', upstream: ['cordis'] },
   { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', upstream: ['cordis'] },
   { file: 'packages/client/ui-agent-preset/tests/section.client.spec.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/components.client.spec.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/create-plugin-menu-item.client.spec.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/section-store.client.spec.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/web-agent-presets.e2e.ts', upstream: ['cordis'] },
+  { file: 'apps/cli/tests/optional-bundle-transitions.e2e.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/profiles/web/tests/fixtures/creator-plugin-manager.mjs', upstream: ['cordis'] },
   { file: 'apps/web/tests/agent-preset-authoring.e2e.ts', upstream: ['cordis'] },
+  { file: 'apps/web/tests/agent-preset-selection.e2e.ts', upstream: ['cordis'] },
+  { file: 'apps/web/tests/developer-tools-settings.e2e.ts', upstream: ['cordis'] },
   { file: 'packages/preset/agent-preset-registry/tests/session.spec.ts', upstream: ['cordis'] },
   // The preset-roster loop names the `cordis` preset id, not a package.
   { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['cordis'] },
@@ -118,8 +126,11 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/extensions/cordis-host-runner/src/inspect-registry.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/cordis-host-runner/src/types.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/cordis-host-runner/tests/helpers.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/cordis-host-runner/tests/inspect-registry.spec.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/cordis-host-runner/tests/runner.spec.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/cordis-host-runner/tests/versioning.spec.ts', upstream: ['cordis'] },
+  { file: 'snapshots/session/cordis-inspect-liveness/client-fixture.mjs', upstream: ['cordis'] },
+  { file: 'snapshots/session/cordis-inspect-timeout/client-fixture.mjs', upstream: ['cordis'] },
   { file: 'packages/extensions/tool-cordis/src/api-catalog.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/tool-cordis/src/providers.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-cordis/src/client/index.ts', upstream: ['cordis'] },
@@ -478,13 +489,58 @@ function skipped(file: string, pattern: Pattern): boolean {
   return GENERIC_SKIPS.some(skip => skip.file === file && skip.upstream.includes(pattern.upstream))
 }
 
-function rewriteLine(line: string, file: string, all: readonly Pattern[]): string {
-  let out = line
-  for (const pattern of all) {
-    if (skipped(file, pattern)) continue
-    out = out.replace(pattern.token, (_match, quote: string, subpath: string) => `${quote}${pattern.to}${subpath}${quote}`)
-    out = out.replace(pattern.yamlName, (_match, prefix: string, suffix: string) => `${prefix}${pattern.to}${suffix}`)
+/** Real module references remain rewritable even in a file that also owns product identifiers. */
+function packageReferencePositions(source: string, file: string): ReadonlySet<number> {
+  const positions = new Set<number>()
+  if (!GENERIC_SKIPS.some(skip => skip.file === file) || !/\.[cm]?[jt]sx?$/.test(file)) return positions
+  const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true)
+  const record = (node: ts.Node | undefined): void => {
+    if (node !== undefined && ts.isStringLiteralLike(node)) positions.add(node.getStart(tree))
   }
+  const eventRecord = (node: ts.Node): boolean => ts.isObjectLiteralExpression(node)
+    && node.properties.some(property => ts.isPropertyAssignment(property)
+      && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) && property.name.text === 'signature')
+    && node.properties.some(property => ts.isPropertyAssignment(property)
+      && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) && property.name.text === 'mode'
+      && ts.isStringLiteralLike(property.initializer) && ['emit', 'bail', 'parallel', 'serial', 'waterfall'].includes(property.initializer.text))
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) record(node.moduleSpecifier)
+    else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
+      record(node.moduleReference.expression)
+    }
+    else if (ts.isCallExpression(node)
+      && (node.expression.kind === ts.SyntaxKind.ImportKeyword
+        || /^(?:require(?:\.resolve)?|import\.meta\.resolve)$/.test(node.expression.getText(tree)))) {
+      record(node.arguments[0])
+    } else if (ts.isPropertyAssignment(node)
+      && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) && node.name.text === 'name'
+      && !eventRecord(node.parent)) record(node.initializer)
+    ts.forEachChild(node, visit)
+  }
+  visit(tree)
+  return positions
+}
+
+function rewriteLine(line: string, file: string, all: readonly Pattern[], offset: number, references: ReadonlySet<number>): string {
+  const edits: { start: number; end: number; text: string }[] = []
+  for (const pattern of all) {
+    for (const match of line.matchAll(pattern.token)) {
+      const [token, quote, subpath] = match
+      const prosePackageSite = /\.(?:md|ya?ml)$/.test(file)
+        && /(?:\bfrom|\bname\s*:|\b(?:import|require)(?:\.resolve)?\s*\()\s*$/.test(line.slice(0, match.index))
+      const packageSite = references.has(offset + match.index) || prosePackageSite
+      const presetList = pattern.upstream === 'cordis' && subpath === ''
+        && (file.endsWith('.md') || /^\s*(?:#|\/\/|\*)/.test(line))
+        && /(['"`])(?:standard|ptc|minimal)\1/.test(line)
+      if (!packageSite && (skipped(file, pattern) || presetList)) continue
+      edits.push({ start: match.index, end: match.index + token.length, text: `${quote}${pattern.to}${subpath}${quote}` })
+    }
+    for (const match of line.matchAll(pattern.yamlName)) {
+      edits.push({ start: match.index, end: match.index + match[0].length, text: `${match[1]}${pattern.to}${match[2]}` })
+    }
+  }
+  let out = line
+  for (const edit of edits.sort((left, right) => right.start - left.start)) out = out.slice(0, edit.start) + edit.text + out.slice(edit.end)
   return out
 }
 
@@ -502,9 +558,13 @@ function rewriteLine(line: string, file: string, all: readonly Pattern[]): strin
 function rewrite(text: string, file: string, all: readonly Pattern[]): { text: string; lines: number } {
   const markdown = file.endsWith('.md')
   const prose = markdown && file.startsWith('docs/')
+  const references = packageReferencePositions(text, file)
   let insideFence = false
   let lines = 0
+  let offset = 0
   const out = text.split('\n').map((line) => {
+    const start = offset
+    offset += line.length + 1
     if (markdown) {
       if (/^\s*```/.test(line)) {
         insideFence = !insideFence
@@ -512,11 +572,21 @@ function rewrite(text: string, file: string, all: readonly Pattern[]): { text: s
       }
       if (!insideFence && !prose) return line
     }
-    const next = rewriteLine(line, file, all)
+    const next = rewriteLine(line, file, all, start, references)
     if (next !== line) lines += 1
     return next
   })
   return { text: out.join('\n'), lines }
+}
+
+/**
+ * Prepare one deterministic source rewriter for a whole codemod run.
+ * @param reverse - Restore upstream package names instead of applying the scope.
+ * @returns Rewriter taking a repository-relative path and its current source bytes.
+ */
+export function createRescopeRewriter(reverse = false): (file: string, source: string) => { text: string; lines: number } {
+  const all = patterns(reverse)
+  return (file, source) => rewrite(source, file, all)
 }
 
 function classify(file: string): string {
@@ -567,7 +637,7 @@ function main(): void {
   const args = process.argv.slice(2)
   const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'check' : 'dry'
   const reverse = args.includes('--reverse')
-  const all = patterns(reverse)
+  const transform = createRescopeRewriter(reverse)
   const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
     .split('\0')
     .filter(file => file !== '' && !isRescopeExcluded(file))
@@ -613,7 +683,7 @@ function main(): void {
   for (const file of files) {
     const path = resolve(root, file)
     const before = readFileSync(path, 'utf8')
-    const { text: after, lines } = rewrite(before, file, all)
+    const { text: after, lines } = transform(file, before)
     if (after === before) continue
     outstanding.push(file)
     const kind = classify(file)
