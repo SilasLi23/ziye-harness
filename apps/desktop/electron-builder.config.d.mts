@@ -2,6 +2,7 @@ import type { AfterPackContext, BeforePackContext } from 'app-builder-lib'
 
 /** Electron-builder fields asserted by the Desktop release tests. */
 export interface DesktopElectronBuilderConfig {
+  readonly productName: string
   readonly appId: string
   readonly copyright: string
   readonly artifactName: string
@@ -22,6 +23,7 @@ export interface DesktopElectronBuilderConfig {
     ...{ readonly from: string, readonly to: 'tray.ico' }[],
   ]
   readonly mac: {
+    readonly icon: string
     readonly extendInfo: {
       readonly CFBundleLocalizations: readonly string[]
       readonly NSMicrophoneUsageDescription: string
@@ -39,6 +41,7 @@ export interface DesktopElectronBuilderConfig {
     readonly writeUpdateInfo: boolean
   }
   readonly win: {
+    readonly icon: string
     readonly forceCodeSigning: boolean
     readonly signtoolOptions: {
       readonly publisherName: string | undefined
