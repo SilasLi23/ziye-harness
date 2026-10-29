@@ -88,7 +88,7 @@ Windows 在整个运行期间常驻托盘图标。悬停提示为产品名，单
 
 macOS“文件”菜单显示已接受的单键绑定（包括方向键），并通过 Client 页面 owner 路由“关闭页面或窗口”。Windows 和 macOS 在主文档、内嵌 frame 和浏览器 guest 输入之前拦截所有已接受的完整绑定，包括编辑和终端输入。录制和输入法组合状态仍受保护。更新蒙层从创建到最后一个蒙层关闭期间阻挡父窗口及其浏览器 guest 的产品快捷键和编辑按键递送。每次打开或关闭蒙层都会作废待完成的组合键状态。主进程通过显式的创建能力和输入状态读取能力，让更新对话框与快捷键输入共享同一个蒙层管理实例。双键组合会将首键的初次按下事件交给页面，且不拦截其松开事件；完整组合及其重复事件会被消费。渲染进程将可配置绑定的分发交给原生适配器。双键组合不注册原生菜单快捷键。已接受的命令通过可信 preload 转发一次。Linux 通过 DOM 分发主文档快捷键，并将已接受的内嵌 frame 绑定转发给 Client 解析器。关闭最后一个窗口后 macOS 保留应用生命周期；Windows 退出桌面实例并停止其任务。[关窗决策](../../.agents/notes/implemented/architecture/2026-09-21-desktop-page-close-shortcuts.zh.md)记录了这一生命周期选择。
 
-macOS 打包使用私有名称 Silas，以及由 [macos-brand.json](resources/macos-brand.json) 选择并校验字节指纹的 [Silas.icns](resources/Silas.icns)。交付 ICNS 包含 16 至 1024 像素的全部十个标准/Retina 表示，每个尺寸保留蓝灰色 D5 立体标志、近白内缩底板与透明边距。替换时同时更新已确认的 ICNS 与清单哈希，不从 PNG 重新生成。原 `icon-macos.png` 与 SVG 作为上游参考素材保留。Windows、Web 品牌、应用标识及更新地址保持原值。分发前检查小尺寸、透明边缘及深浅背景下实际 Finder/Dock 显示。
+macOS 打包使用私有名称 Silas，以及由 [macos-brand.json](resources/macos-brand.json) 选择并校验字节指纹的 [Silas-E1.icns](resources/Silas-E1.icns)。交付 ICNS 包含 16 至 1024 像素的全部十个标准/Retina 表示，每个尺寸保留 E1 蓝色毛绒、黑贝雷帽、小黑眼睛、原配色、近白内缩底板与透明边距，最小尺寸也沿用同一 3D 母图。替换时同时更新已确认的 ICNS 与清单哈希，不从 PNG 重新生成。原 `icon-macos.png` 与 SVG 作为上游参考素材保留。Windows、Web 品牌、应用标识及更新地址保持原值。分发前检查小尺寸、透明边缘及深浅背景下实际 Finder/Dock 显示。
 
 <a id="bundled-workspace-dependencies"></a>
 

@@ -8,8 +8,8 @@ it('packages Silas with the delivered ICNS while preserving the selected applica
   const config = createElectronBuilderConfig({ DSH_DESKTOP_UNSIGNED: '1', DSH_DESKTOP_APP_ID: 'com.example.unchanged' }, 'darwin', 'arm64')
   expect(config.productName).toBe('Silas')
   expect(config.appId).toBe('com.example.unchanged')
-  expect(config.mac.icon).toMatch(/Silas\.icns$/u)
-  expect(createHash('sha256').update(readFileSync(config.mac.icon)).digest('hex')).toBe('8f689acfad451956520a5b61541e2a25ca1d91d982f25311c941fc9d5527a720')
+  expect(config.mac.icon).toMatch(/Silas-E1\.icns$/u)
+  expect(createHash('sha256').update(readFileSync(config.mac.icon)).digest('hex')).toBe('eaa85748d400ecf0f0db9fa0124e16e8a97b65ba85eaef51f9adef5e95a7abdf')
   expect(config.mac.extendInfo.NSMicrophoneUsageDescription).toMatch(/^Silas /u)
 })
 
